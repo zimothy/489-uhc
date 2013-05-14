@@ -1,14 +1,19 @@
 ------------------------------------------------------------------------------
 -- | Defines the 'DOM' monad.
 module Melchior.DOM.Internal
-    (
-      -- * Monad
+    ( -- * Monad
       DOM
+
+      -- * Nodes
+    , Node (domNode)
+    , JSNode
     ) where
 
 ------------------------------------------------------------------------------
 import Control.Applicative (Applicative (..))
 import Control.Monad.Fix (MonadFix (..))
+
+import Melchior.JScript
 
 
 ------------------------------------------------------------------------------
@@ -29,4 +34,16 @@ instance Monad DOM where
 
 instance MonadFix DOM where
     mfix f = DOM $ mfix (unDOM . f)
+
+
+------------------------------------------------------------------------------
+-- | Class for all node types.
+class Node a where
+    domNode :: a -> JSPtr JSNode
+
+
+------------------------------------------------------------------------------
+-- | Internal node definition.  Wraps over the JavaScript object.
+data JSNode
+
 
