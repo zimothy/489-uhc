@@ -11,7 +11,7 @@ module Melchior.JScript
     , stringToJSString
     ) where
 
-#ifdef __UTRECHT_HASKELL__
+#ifdef __UHC_TARGET_JS__
 ------------------------------------------------------------------------------
 import Language.UHC.JScript.ECMA.String
     (JSString, jsStringToString, stringToJSString)

@@ -3,12 +3,14 @@
 -- specific types that elements can be narrowed into.
 module Melchior.DOM.Element
     ( -- * Element types
-      Element
+      Element (Element)
+    , Input (Input)
+    , Link (Link)
     ) where
 
 ------------------------------------------------------------------------------
-import Melchior.DOM.Node
-import Melchior.JScript
+import Melchior.DOM.Internal (JSNode, Node (domNode))
+import Melchior.JScript (JSPtr)
 
 
 ------------------------------------------------------------------------------

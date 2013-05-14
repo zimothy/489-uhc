@@ -1,4 +1,4 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE CPP #-}
 
 ------------------------------------------------------------------------------
 -- | Defines functions for traversing the DOM to select certain elements.
@@ -20,12 +20,10 @@ module Melchior.DOM.Selectors
 import Control.Category
 import Control.Monad ((>=>), liftM)
 
-import Data.List (intercalate)
-import Data.Maybe (listToMaybe, maybeToList)
+import Data.Maybe (listToMaybe)
 
-import Melchior.DOM.Element (Element, Input)
-import Melchior.DOM.Internal (DOM)
-import Melchior.DOM.Node (Node)
+import Melchior.DOM.Element (Element (Element), Input (Input))
+import Melchior.DOM.Internal (DOM (DOM), JSNode, Node (domNode))
 import Melchior.JScript
 
 import Prelude hiding ((.), id)
@@ -76,8 +74,13 @@ instance Nodes [] where
 select :: Selector [Element] b -> DOM b
 select = DOM . runSelector
 
+#ifdef __UHC_TARGET_JS__
 foreign import js "runSelector(%1)"
     runSelector :: Selector [Element] b -> IO b
+#else
+runSelector :: Selector [Element] b -> IO b
+runSelector = undefined
+#endif
 
 
 ------------------------------------------------------------------------------
@@ -86,34 +89,53 @@ byId :: (Node a, Nodes f) => String -> Selector (f a) (Maybe a)
 byId eid = Selector $
     liftM toMaybe . filterIO (idEq (stringToJSString eid) . domNode)
 
+#ifdef __UHC_TARGET_JS__
 foreign import js "idEq(%2, %1)"
-    idEq :: JSString -> JSPtr Node -> IO Bool
-
+    idEq :: JSString -> JSPtr JSNode -> IO Bool 
+#else
+idEq :: JSString -> JSPtr JSNode -> IO Bool 
+idEq = undefined
+#endif
 
 ------------------------------------------------------------------------------
 -- | Filters the input to those nodes with the given class attribute.
 byClass :: (Node a, Nodes f) => String -> Selector (f a) (f a)
 byClass ecl = Selector $ filterIO (clEq (stringToJSString ecl) . domNode)
 
+#ifdef __UHC_TARGET_JS__
 foreign import js "clEq(%2, %1)"
-    clEq :: JSString -> JSPtr Node -> IO Bool
+    clEq :: JSString -> JSPtr JSNode -> IO Bool
+#else
+clEq :: JSString -> JSPtr JSNode -> IO Bool
+clEq = undefined
+#endif
 
 
 ------------------------------------------------------------------------------
 -- | Maps the input nodes to their children and concatenates the result.
-children :: (Nodes f) => Selector (f Element) [Element]
+children :: Nodes f => Selector (f Element) [Element]
 children = Selector $ liftM (fmap Element) . concatMapIO (chlQ . domNode)
 
+#ifdef __UHC_TARGET_JS__
 foreign import js "%1.childNodes"
-    chlQ :: JSPtr Node -> IO [JSPtr Node]
+    chlQ :: JSPtr JSNode -> IO [JSPtr JSNode]
+#else
+chlQ :: JSPtr JSNode -> IO [JSPtr JSNode]
+chlQ = undefined
+#endif
 
 
 ------------------------------------------------------------------------------
 -- | Filters the input elements to those capable of receiving input and
 -- narrows their type.
 inputs :: Nodes f => Selector (f Element) (f Input)
-inputs = Selector $ liftM (fmap $ Input . unEl) . filterIO (inpF . domNode)
+inputs = Selector $ liftM (fmap $ Input . domNode) . filterIO (inpF . domNode)
 
+#ifdef __UHC_TARGET_JS__
 foreign import js "tag(%1, 'input')"
-    inpF :: JSPtr Node -> IO Bool
+    inpF :: JSPtr JSNode -> IO Bool
+#else
+inpF :: JSPtr JSNode -> IO Bool
+inpF = undefined
+#endif
 

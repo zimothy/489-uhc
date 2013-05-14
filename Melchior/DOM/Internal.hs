@@ -2,7 +2,7 @@
 -- | Defines the 'DOM' monad.
 module Melchior.DOM.Internal
     ( -- * Monad
-      DOM
+      DOM (DOM)
 
       -- * Nodes
     , Node (domNode)

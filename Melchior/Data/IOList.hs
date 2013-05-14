@@ -1,4 +1,4 @@
-module Melchior.Data.List
+module Melchior.Data.IOList
        (
          -- * functions
          head
