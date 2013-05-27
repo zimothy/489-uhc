@@ -46,4 +46,3 @@ class Node a where
 -- | Internal node definition.  Wraps over the JavaScript object.
 data JSNode
 
-

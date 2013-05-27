@@ -91,9 +91,9 @@ byId eid = Selector $
 
 #ifdef __UHC_TARGET_JS__
 foreign import js "idEq(%2, %1)"
-    idEq :: JSString -> JSPtr JSNode -> IO Bool 
+    idEq :: JSString -> JSPtr JSNode -> IO Bool
 #else
-idEq :: JSString -> JSPtr JSNode -> IO Bool 
+idEq :: JSString -> JSPtr JSNode -> IO Bool
 idEq = undefined
 #endif
 
